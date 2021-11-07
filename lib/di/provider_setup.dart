@@ -1,5 +1,5 @@
 import 'package:note_app/data/data_source/local/note_data_source.dart';
-import 'package:note_app/data/repository/note_repository_impl.dart';
+import 'package:note_app/data/repository/fake_note_repository_impl.dart';
 import 'package:note_app/domain/use_case/add_note_use_case.dart';
 import 'package:note_app/domain/use_case/delete_note_use_case.dart';
 import 'package:note_app/domain/use_case/get_note_use_case.dart';
@@ -23,7 +23,8 @@ Future<List<SingleChildWidget>> getProviders() async {
   );
 
   final dataSource = NoteDataSource(db);
-  final repository = NoteRepositoryImpl(dataSource);
+  //final repository = NoteRepositoryImpl(dataSource);
+  final repository = FakeNoteRepositoryImpl(dataSource);
   final useCases = NoteUseCases(
     getNotes: GetNotesUseCase(repository),
     deleteNote: DeleteNoteUseCase(repository),
