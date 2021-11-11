@@ -34,12 +34,12 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
     super.initState();
     Future.microtask(() {
       final viewModel = context.read<AddEditNoteViewModel>();
-      
+
       //구독
       _streamSubscription = viewModel.eventStream.listen((event) {
         event.when(
             saveNote: () {
-              Navigator.pop(context);
+              Navigator.pop(context,true);
             },
             showSnackBar: (message) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -53,6 +53,13 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
               );
             });
       });
+
+      if(widget.note!=null){
+        _titleController.text = widget.note!.title;
+        _contentController.text = widget.note!.content;
+        viewModel.onEvent(AddEditNoteEvent.changeColor(widget.note!.color));
+      }
+
     });
   }
 

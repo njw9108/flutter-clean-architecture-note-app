@@ -29,11 +29,20 @@ class NoteDataSource {
   }
 
   Future<void> updateNote(Note note) async {
-    await db.update('note', note.toJson());
+    await db.update(
+      'note',
+      note.toJson(),
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
   }
 
   Future<void> deleteNote(Note note) async {
     // DELETE FROM note WHERE id = 10;
-    await db.delete('note', where: 'id = ?', whereArgs: [note.id]);
+    await db.delete(
+      'note',
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
   }
 }

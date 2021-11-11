@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/domain/model/note.dart';
 import 'package:note_app/presentation/add_edit_note/add_edit_note_screen.dart';
+import 'package:note_app/presentation/notes/notes_event.dart';
 import 'package:note_app/presentation/notes/notes_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -26,12 +27,15 @@ class NotesScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          bool? isChanged = await Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const AddEditNoteScreen(note: null)),
+                builder: (_) => const AddEditNoteScreen(note: null)),
           );
+          if (isChanged != null && isChanged) {
+            viewModel.onEvent(const NotesEvent.loadNotes());
+          }
         },
         child: const Icon(Icons.add),
         foregroundColor: Colors.black,
@@ -48,14 +52,16 @@ class NotesScreen extends StatelessWidget {
                       borderRadius: const BorderRadius.all(Radius.circular(15)),
                     ),
                     child: ListTile(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        bool? isChanged = await Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AddEditNoteScreen(
-                                    note: note,
-                                  )),
+                              builder: (context) =>
+                                  AddEditNoteScreen(note: note)),
                         );
+                        if (isChanged != null && isChanged) {
+                          viewModel.onEvent(const NotesEvent.loadNotes());
+                        }
                       },
                       title: Text(
                         note.title,
@@ -70,7 +76,21 @@ class NotesScreen extends StatelessWidget {
                             const TextStyle(fontSize: 21, color: Colors.black),
                       ),
                       trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          viewModel.onEvent(NotesEvent.deleteNote(note));
+                          final snackBar = SnackBar(
+                            content: const Text('선택한 노트를 삭제 했습니다.'),
+                            action: SnackBarAction(
+                              label: '취소',
+                              onPressed: () {
+                                viewModel
+                                    .onEvent(const NotesEvent.restoreNote());
+                              },
+                            ),
+                          );
+
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        },
                         icon: const Icon(Icons.delete),
                         color: Colors.black,
                       ),
