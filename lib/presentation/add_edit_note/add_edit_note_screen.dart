@@ -37,29 +37,26 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
 
       //구독
       _streamSubscription = viewModel.eventStream.listen((event) {
-        event.when(
-            saveNote: () {
-              Navigator.pop(context,true);
-            },
-            showSnackBar: (message) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    message,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  backgroundColor: Colors.black,
-                ),
-              );
-            });
+        event.when(saveNote: () {
+          Navigator.pop(context, true);
+        }, showSnackBar: (message) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                message,
+                style: const TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Colors.black,
+            ),
+          );
+        });
       });
 
-      if(widget.note!=null){
+      if (widget.note != null) {
         _titleController.text = widget.note!.title;
         _contentController.text = widget.note!.content;
         viewModel.onEvent(AddEditNoteEvent.changeColor(widget.note!.color));
       }
-
     });
   }
 
@@ -107,7 +104,7 @@ class _AddEditNoteScreenState extends State<AddEditNoteScreen> {
                     .toList(),
               ),
               Padding(
-                padding: EdgeInsets.all(8.0),
+                padding: const EdgeInsets.all(8.0),
                 child: TextField(
                   controller: _titleController,
                   style: const TextStyle(

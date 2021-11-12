@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/domain/model/note.dart';
 import 'package:note_app/presentation/add_edit_note/add_edit_note_screen.dart';
+import 'package:note_app/presentation/notes/components/note_list_widget.dart';
 import 'package:note_app/presentation/notes/notes_event.dart';
 import 'package:note_app/presentation/notes/notes_view_model.dart';
 import 'package:provider/provider.dart';
@@ -44,59 +45,41 @@ class NotesScreen extends StatelessWidget {
       body: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           children: state.notes
-              .map((note) => Container(
-                    padding: const EdgeInsets.all(8),
-                    margin: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Color(note.color),
-                      borderRadius: const BorderRadius.all(Radius.circular(15)),
-                    ),
-                    child: ListTile(
-                      onTap: () async {
-                        bool? isChanged = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  AddEditNoteScreen(note: note)),
-                        );
-                        if (isChanged != null && isChanged) {
-                          viewModel.onEvent(const NotesEvent.loadNotes());
-                        }
-                      },
-                      title: Text(
-                        note.title,
-                        style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black),
-                      ),
-                      subtitle: Text(
-                        note.content,
-                        style:
-                            const TextStyle(fontSize: 21, color: Colors.black),
-                      ),
-                      trailing: IconButton(
-                        onPressed: () {
-                          viewModel.onEvent(NotesEvent.deleteNote(note));
-                          final snackBar = SnackBar(
-                            content: const Text('선택한 노트를 삭제 했습니다.'),
-                            action: SnackBarAction(
-                              label: '취소',
-                              onPressed: () {
-                                viewModel
-                                    .onEvent(const NotesEvent.restoreNote());
-                              },
-                            ),
-                          );
-
-                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                        },
-                        icon: const Icon(Icons.delete),
-                        color: Colors.black,
-                      ),
-                    ),
+              .map((note) => NoteListWidget(
+                    note: note,
+                    onNoteTap: (note) async {
+                      await _noteTap(context, note, viewModel);
+                    },
+                    onDeleteTap: (note) {
+                      _noteDelete(viewModel, note, context);
+                    },
                   ))
               .toList()),
     );
+  }
+
+  void _noteDelete(NotesViewModel viewModel, Note note, BuildContext context) {
+    viewModel.onEvent(NotesEvent.deleteNote(note));
+    final snackBar = SnackBar(
+      content: const Text('선택한 노트를 삭제 했습니다.'),
+      action: SnackBarAction(
+        label: '취소',
+        onPressed: () {
+          viewModel.onEvent(const NotesEvent.restoreNote());
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  Future<void> _noteTap(
+      BuildContext context, Note note, NotesViewModel viewModel) async {
+    bool? isChanged = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddEditNoteScreen(note: note)),
+    );
+    if (isChanged != null && isChanged) {
+      viewModel.onEvent(const NotesEvent.loadNotes());
+    }
   }
 }
